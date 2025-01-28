@@ -1,3 +1,4 @@
+"""
 from flask import Flask, redirect, request, session, render_template, url_for
 from data import htmldf  # Importing the HTML representation of the DataFrame
 import requests
@@ -87,3 +88,4 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+"""
