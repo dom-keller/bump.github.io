@@ -1,6 +1,6 @@
 # bump.github.io
 
-<!--
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,7 +24,6 @@
     <tbody>
       <!-- Dynamic content here -->
     </tbody>
-  <!--
   </table>
 
   <script>
@@ -74,7 +73,6 @@
           td.textContent = row[key];
           tr.appendChild(td);
         });
--->
         tableBody.appendChild(tr);
       });
     }
