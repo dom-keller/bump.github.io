@@ -2,7 +2,7 @@ from flask import Flask, redirect, request, session, render_template, url_for
 from data import htmldf  # Importing the HTML representation of the DataFrame
 import requests
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.')  # Set the template folder to the current directory
 app.secret_key = "nf3buf8nbucn9e38nf9c34ofk"  # Replace with a secure key
 
 # Replace these with your GitHub OAuth App credentials
