@@ -36,13 +36,11 @@ def index():
 
 @app.route("/login")
 def login():
-    """GitHub login route."""
     github_auth_url = f"{AUTHORIZATION_BASE_URL}?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=user:email"
     return redirect(github_auth_url)
 
 @app.route("/callback")
 def callback():
-    """OAuth callback route to handle GitHub authentication."""
     # Retrieve the authorization code from the request
     code = request.args.get("code")
     if not code:
@@ -81,7 +79,6 @@ def callback():
 
 @app.route("/logout")
 def logout():
-    """Logout route to clear the session."""
     session.pop("user_email", None)
     return redirect(url_for("index"))
 
