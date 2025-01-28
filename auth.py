@@ -18,7 +18,6 @@ USER_API_URL = "https://api.github.com/user/emails"
 
 @app.route("/")
 def index():
-    """Home route."""
     if "user_email" in session:
         user_email = session["user_email"]
 
