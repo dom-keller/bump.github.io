@@ -10,63 +10,55 @@
             margin: 20px;
             padding: 20px;
         }
+
         h1 {
             color: #333;
         }
+
         h3 {
             color: #555;
         }
+
         table {
             border-collapse: collapse;
             width: 100%;
             margin-top: 20px;
         }
+
         table, th, td {
             border: 1px solid #ddd;
         }
+
         th, td {
             padding: 10px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         tr:hover {
             background-color: #f1f1f1;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .message {
-            padding: 10px;
-            margin-top: 20px;
-            background-color: #f9f9f9;
-            border-left: 5px solid #4CAF50;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>User Data</h1>
-        <h3>Your Mentor Attendance Data</h3>
-        <!-- If data is available, display the table -->
-        {% if user_data %}
-        <div class="message">
-            <p><strong>Here's the filtered data for your account:</strong></p>
-        </div>
+    <h1>Welcome</h1>
+    <h3>Your Data</h3>
+
+    <!-- Render user data -->
+    {% if user_data %}
         <div>
-            <!-- Display the DataFrame as an HTML table -->
-            {{ htmldf|safe }}
+            {{ user_data|safe }}
         </div>
-        {% else %}
-        <div class="message">
-            <p><strong>No data found for your account. Please make sure your GitHub email matches.</strong></p>
-        </div>
-        {% endif %}
-    </div>
+    {% else %}
+        <p>No data available for your account.</p>
+    {% endif %}
 </body>
 </html>
+
