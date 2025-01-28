@@ -1,71 +1,80 @@
+from flask import Flask, redirect, request, session, render_template, url_for
+from data import htmldf  # Importing the HTML representation of the DataFrame
 import requests
-from flask import Flask, redirect, request, url_for
 
-# Initialize Flask app (this will be your web server)
 app = Flask(__name__)
+app.secret_key = "nf3buf8nbucn9e38nf9c34ofk"  # Replace with a secure key
 
-# GitHub OAuth app credentials (replace with your own)
-client_id = 'Ov23li3i16KHX8LIEPg6'  # Your GitHub OAuth Client ID
-client_secret = '35f56dae59bf401e10c6938cea16f024ea594037'  # Your GitHub OAuth Client Secret
-redirect_uri = 'http://localhost:8000/callback'  # Callback URL set in GitHub OAuth App settings
+# Replace these with your GitHub OAuth App credentials
+CLIENT_ID = 'Ov23li3i16KHX8LIEPg6'  # Your GitHub OAuth Client ID
+CLIENT_SECRET = '35f56dae59bf401e10c6938cea16f024ea594037'  # Your GitHub OAuth Client Secret
+REDIRECT_URI = 'https://dom-keller.github.io/bump.github.io/'  # Callback URL set in GitHub OAuth App settings
 
-# Step 1: Redirect to GitHub for OAuth login
-@app.route('/')
-def home():
-    auth_url = (
-        f"https://github.com/login/oauth/authorize"
-        f"?client_id={client_id}&redirect_uri={redirect_uri}&scope=user:email"
-    )
-    return redirect(auth_url)
+# GitHub OAuth endpoints
+AUTHORIZATION_BASE_URL = "https://github.com/login/oauth/authorize"
+TOKEN_URL = "https://github.com/login/oauth/access_token"
+USER_API_URL = "https://api.github.com/user/emails"
 
-# Step 2: GitHub redirects here with a code parameter
-@app.route('/callback')
-def callback():
-    # Get the code from the URL
-    code = request.args.get('code')
-
-    # Step 3: Exchange the code for an access token
-    token_url = 'https://github.com/login/oauth/access_token'
-    data = {
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'code': code,
-        'redirect_uri': redirect_uri,
-    }
-    headers = {'Accept': 'application/json'}
-
-    # Make POST request to exchange the code for the access token
-    response = requests.post(token_url, data=data, headers=headers)
-    access_token = response.json().get('access_token')
-
-    # Step 4: Use the access token to get the user's profile info (including email)
-    if access_token:
-        user_info = get_user_info(access_token)
-        return f"User Info: {user_info}"
+@app.route("/")
+def index():
+    """Home route."""
+    if "user_email" in session:
+        # User is authenticated, render their data
+        return render_template("index.html", user_data=htmldf)
     else:
-        return "Failed to get access token"
+        # User is not authenticated, prompt login
+        return redirect(url_for("login"))
 
-# Function to get user's info using the GitHub API
-def get_user_info(access_token):
-    user_api_url = 'https://api.github.com/user'
-    headers = {'Authorization': f'token {access_token}'}
+@app.route("/login")
+def login():
+    """GitHub login route."""
+    github_auth_url = f"{AUTHORIZATION_BASE_URL}?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=user:email"
+    return redirect(github_auth_url)
 
-    response = requests.get(user_api_url, headers=headers)
-    user_info = response.json()
+@app.route("/callback")
+def callback():
+    """OAuth callback route to handle GitHub authentication."""
+    # Retrieve the authorization code from the request
+    code = request.args.get("code")
+    if not code:
+        return "Authorization failed. No code provided.", 400
 
-    # Get the user's primary email (if public)
-    email = user_info.get('email', 'No email found (may be private)')
+    # Exchange code for access token
+    token_response = requests.post(
+        TOKEN_URL,
+        headers={"Accept": "application/json"},
+        data={"client_id": CLIENT_ID, "client_secret": CLIENT_SECRET, "code": code}
+    )
+    token_json = token_response.json()
+    access_token = token_json.get("access_token")
 
-    # Fetch additional verified email addresses
-    email_api_url = 'https://api.github.com/user/emails'
-    response = requests.get(email_api_url, headers=headers)
-    emails = response.json()
+    if not access_token:
+        return "Authorization failed. Could not retrieve access token.", 400
 
-    # You can choose to display all emails or just the first one
-    verified_emails = [email['email'] for email in emails]
+    # Use access token to fetch user's primary email
+    user_response = requests.get(
+        USER_API_URL,
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    user_emails = user_response.json()
 
-    return f"Primary Email: {email}, Verified Emails: {verified_emails}"
+    # Get the primary email from the response
+    primary_email = next((email["email"] for email in user_emails if email["primary"]), None)
 
-if __name__ == '__main__':
-    # Run the Flask app
-    app.run(debug=True, port=8000)
+    if not primary_email:
+        return "Authorization failed. Could not retrieve primary email.", 400
+
+    # Store user's email in the session
+    session["user_email"] = primary_email
+
+    # Redirect to the home page
+    return redirect(url_for("index"))
+
+@app.route("/logout")
+def logout():
+    """Logout route to clear the session."""
+    session.pop("user_email", None)
+    return redirect(url_for("index"))
+
+if __name__ == "__main__":
+    app.run(debug=True)
