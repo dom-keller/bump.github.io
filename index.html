@@ -1,46 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Data</title>
-    <!-- Bootstrap for styling -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h1 class="text-center">User Data</h1>
-        <div class="mt-4">
-            {% if user_row %}
-                <h3 class="text-success">Welcome, {{ user_email }}</h3>
-                <p class="mb-4">Here is your data from the table:</p>
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            {% for col in user_row.keys() %}
-                                <th>{{ col }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            {% for value in user_row.values() %}
-                                <td>{{ value }}</td>
-                            {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="text-danger">No data found for your email address: {{ user_email }}</p>
-            {% endif %}
-        </div>
-        <div class="mt-4">
-            <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
-        </div>
-    </div>
-    <!-- Custom JavaScript -->
-    <script src="js/script.js"></script>
-</body>
-</html>
+<script>
+  async function displayUserInfo() {
+    try {
+      const response = await fetch('/api/user');
+      if (!response.ok) {
+        throw new Error('Failed to fetch user info');
+      }
+      const userData = await response.json();
+      document.getElementById('user-info').innerHTML = `
+        <p><strong>Username:</strong> ${userData.login}</p>
+        <p><strong>Name:</strong> ${userData.name}</p>
+        <p><strong>Bio:</strong> ${userData.bio}</p>
+      `;
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  displayUserInfo();
+</script>
