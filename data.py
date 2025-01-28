@@ -3,4 +3,4 @@ import json
 from content import data
 
 df = pd.DataFrame(data)
-print(df)
+htmldf = df.to_html()
