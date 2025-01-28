@@ -19,8 +19,17 @@ USER_API_URL = "https://api.github.com/user/emails"
 def index():
     """Home route."""
     if "user_email" in session:
-        # User is authenticated, render their data
-        return render_template("index.html", user_data=htmldf)
+        user_email = session["user_email"]
+
+        # Filter the dataframe for the logged-in user's email
+        user_row = df[df["Email"] == user_email].to_dict(orient="records")
+
+        # Pass the first matching row to the template (if any)
+        return render_template(
+            "index.html",
+            user_email=user_email,
+            user_row=user_row[0] if user_row else None
+        )
     else:
         # User is not authenticated, prompt login
         return redirect(url_for("login"))
