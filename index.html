@@ -3,41 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
-        }
-        h1 {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 1em;
-            text-align: left;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <title>User Data</title>
+    <!-- Bootstrap for styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Welcome</h1>
-    <h2>Your Data</h2>
-    {% if user_data %}
-        <div>
-            {{ user_data|safe }}
+    <div class="container mt-5">
+        <h1 class="text-center">User Data</h1>
+        <div class="mt-4">
+            {% if user_row %}
+                <h3 class="text-success">Welcome, {{ user_email }}</h3>
+                <p class="mb-4">Here is your data from the table:</p>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            {% for col in user_row.keys() %}
+                                <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for value in user_row.values() %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-danger">No data found for your email address: {{ user_email }}</p>
+            {% endif %}
         </div>
-    {% else %}
-        <p>No data available for your account.</p>
-    {% endif %}
+        <div class="mt-4">
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
 </body>
 </html>
